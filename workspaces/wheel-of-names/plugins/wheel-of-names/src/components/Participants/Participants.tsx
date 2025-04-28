@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+} from 'react';
 import { Entity } from '@backstage/catalog-model';
 import { useApi, configApiRef } from '@backstage/core-plugin-api';
 import { catalogApiRef } from '@backstage/plugin-catalog-react';
@@ -87,11 +93,17 @@ export const Participants = ({
   const [error, setError] = useState<Error | null>(null);
   const [processingGroups, setProcessingGroups] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [inputValue, setInputValue] = useState<string>(''); // Add this new state
-
+  const [inputValue, setInputValue] = useState<string>('');
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(
     null,
   );
+
+  // New state variables for pagination
+  const [page, setPage] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement | null>(null);
+  const totalEntitiesRef = useRef<number>(0);
 
   // Create service instance
   const entityService = useMemo(
@@ -99,32 +111,74 @@ export const Participants = ({
     [catalogApi],
   );
 
+  // Handle intersection observer for infinite scrolling
+  const lastElementRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (loading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore && searchTerm) {
+          setPage(prevPage => prevPage + 1);
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [loading, hasMore, searchTerm],
+  );
+
   // Effect to fetch entities based on search term
   useEffect(() => {
     if (!searchTerm) {
       setEntities([]);
+      setHasMore(true);
+      setPage(0);
+      totalEntitiesRef.current = 0;
       return;
+    }
+
+    // Reset when search term changes
+    if (page === 0) {
+      setEntities([]);
+      totalEntitiesRef.current = 0;
     }
 
     const loadEntities = async () => {
       setLoading(true);
       try {
+        const offset = page * searchLimit;
         const fetchedEntities = await entityService.fetchEntities(
           searchTerm,
           searchLimit,
+          offset,
         );
-        setEntities(fetchedEntities);
+
+        // If fewer entries are returned than requested, we've reached the end
+        if (fetchedEntities.length < searchLimit) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+
+        // Append entries instead of replacing them
+        setEntities(prevEntities =>
+          page === 0 ? fetchedEntities : [...prevEntities, ...fetchedEntities],
+        );
+
+        totalEntitiesRef.current += fetchedEntities.length;
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error('Failed to load entities'),
         );
+        setHasMore(false);
       } finally {
         setLoading(false);
       }
     };
 
     loadEntities();
-  }, [entityService, searchTerm, searchLimit]);
+  }, [entityService, searchTerm, searchLimit, page]);
 
   // Handle search input with debounce
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,6 +192,11 @@ export const Participants = ({
 
     // Set a new timeout to update search term after user stops typing
     const timeout = setTimeout(() => {
+      // Reset when search term changes
+      setPage(0);
+      setEntities([]);
+      setHasMore(true);
+      totalEntitiesRef.current = 0;
       setSearchTerm(value);
     }, 300); // 300ms debounce
 
@@ -244,6 +303,9 @@ export const Participants = ({
     setSearchTerm('');
     setInputValue(''); // Clear both states
     setEntities([]);
+    setPage(0);
+    setHasMore(true);
+    totalEntitiesRef.current = 0;
   };
 
   return (
@@ -288,24 +350,22 @@ export const Participants = ({
           }}
         />
 
-        {/* 
-
-// TODO: add more users and check scrolling (UI) & pagination
-
         {/* Search Results */}
-        {searchTerm && !loading && entities.length > 0 && (
+        {searchTerm && entities.length > 0 && (
           <Card variant="outlined" className={classes.searchResults}>
             <div className={classes.searchResultsHeader}>
               <Typography
                 variant="subtitle2"
                 className={classes.searchResultsTitle}
               >
-                Search Results
+                Search Results{' '}
+                {totalEntitiesRef.current > 0 &&
+                  `(${totalEntitiesRef.current})`}
               </Typography>
               <Divider />
             </div>
             <List className={classes.searchResultsList} dense>
-              {entities.slice(0, 10).map(entity => {
+              {entities.map((entity, index) => {
                 // Skip if already selected
                 const isUserAlreadySelected = resolvedParticipants.some(
                   p => p.id === entity.metadata.uid,
@@ -327,7 +387,14 @@ export const Participants = ({
                   entity.metadata.name;
 
                 return (
-                  <ListItem key={entity.metadata.uid} button>
+                  <ListItem
+                    key={entity.metadata.uid}
+                    button
+                    // Apply ref to last element for infinite scrolling
+                    ref={
+                      index === entities.length - 1 ? lastElementRef : undefined
+                    }
+                  >
                     <Avatar
                       className={
                         entity.kind === 'Group'
@@ -354,12 +421,23 @@ export const Participants = ({
                   </ListItem>
                 );
               })}
-              {entities.length > 10 && (
+              {/* Loading indicator for infinite scrolling */}
+              {loading && (
+                <ListItem ref={loadingRef}>
+                  <ListItemText
+                    secondary={
+                      <div style={{ textAlign: 'center', padding: '8px' }}>
+                        <CircularProgress size={20} />
+                      </div>
+                    }
+                  />
+                </ListItem>
+              )}
+              {!loading && !hasMore && entities.length > 10 && (
                 <ListItem>
                   <ListItemText
-                    secondary={`${
-                      entities.length - 10
-                    } more results. Refine your search...`}
+                    secondary="End of results reached"
+                    style={{ textAlign: 'center', fontStyle: 'italic' }}
                   />
                 </ListItem>
               )}

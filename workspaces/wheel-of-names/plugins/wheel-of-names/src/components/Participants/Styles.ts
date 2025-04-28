@@ -86,63 +86,44 @@ export const useParticipantsStyles = makeStyles(theme => ({
     justifyContent: 'center',
     marginTop: theme.spacing(2),
   },
-  // Add these to your useParticipantsStyles
-  // searchResults: {
-  //   marginTop: theme.spacing(2),
-  //   marginBottom: theme.spacing(2),
-  //   maxHeight: '300px',
-  //   overflowY: 'auto',
-  // },
-  // searchResultsTitle: {
-  //   padding: theme.spacing(1, 2),
-  //   fontWeight: 'bold',
-  // },
-  // Add these to your useParticipantsStyles or update existing ones
   searchResults: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    display: 'flex',
-    flexDirection: 'column',
-    maxHeight: '300px',
-    overflow: 'hidden', // Changed from overflowY to overflow
+    maxHeight: 300, // Begrenzte Höhe für Scrolling
+    overflow: 'hidden',
   },
   searchResultsHeader: {
+    padding: theme.spacing(1, 2),
+    backgroundColor: theme.palette.background.default,
     position: 'sticky',
     top: 0,
-    zIndex: 10,
-    backgroundColor: theme.palette.background.paper, // Match the Card background
-    borderBottom: `1px solid ${theme.palette.divider}`,
+    zIndex: 1,
   },
   searchResultsTitle: {
-    padding: theme.spacing(1, 2),
     fontWeight: 'bold',
   },
   searchResultsList: {
+    maxHeight: 250, // Reduziere um Header-Höhe
     overflowY: 'auto',
-    flex: 1,
+    padding: 0,
   },
   noResults: {
-    marginTop: theme.spacing(2),
+    padding: theme.spacing(2),
     textAlign: 'center',
   },
   userAvatar: {
-    backgroundColor: theme.palette.primary.light,
-    width: theme.spacing(4),
-    height: theme.spacing(4),
+    backgroundColor: theme.palette.primary.main,
     marginRight: theme.spacing(1),
   },
   groupAvatar: {
-    backgroundColor: theme.palette.secondary.light,
-    width: theme.spacing(4),
-    height: theme.spacing(4),
+    backgroundColor: theme.palette.secondary.main,
     marginRight: theme.spacing(1),
   },
   processingContainer: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: theme.spacing(2),
     gap: theme.spacing(1),
+    marginTop: theme.spacing(1),
   },
   participantsContainer: {
     marginTop: theme.spacing(2),

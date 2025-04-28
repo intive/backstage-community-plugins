@@ -26,14 +26,16 @@ export class EntityService {
 
   async fetchEntities(
     searchTerm: string,
-    searchLimit: number,
+    limit: number = 10,
+    offset: number = 0,
   ): Promise<Entity[]> {
     // Fetch the entity search limit from the config API
     // or use the default value if not set
 
     const queryOptions: any = {
       filter: [{ kind: 'group' }, { kind: 'user' }],
-      limit: searchLimit,
+      limit: limit,
+      offset: offset,
       orderFields: { field: 'metadata.name', order: 'asc' },
     };
 
