@@ -59,11 +59,10 @@ export const useParticipantsStyles = makeStyles(theme => ({
     alignItems: 'center',
   },
   selectedParticipantsContainer: {
-    maxHeight: '100vh',
     marginTop: theme.spacing(3),
   },
   selectedParticipantsList: {
-    maxHeight: '90vh',
+    maxHeight: '250px',
     overflow: 'auto',
     backgroundColor: theme.palette.background.paper,
   },
@@ -86,5 +85,73 @@ export const useParticipantsStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'center',
     marginTop: theme.spacing(2),
+  },
+  // Add these to your useParticipantsStyles
+  // searchResults: {
+  //   marginTop: theme.spacing(2),
+  //   marginBottom: theme.spacing(2),
+  //   maxHeight: '300px',
+  //   overflowY: 'auto',
+  // },
+  // searchResultsTitle: {
+  //   padding: theme.spacing(1, 2),
+  //   fontWeight: 'bold',
+  // },
+  // Add these to your useParticipantsStyles or update existing ones
+  searchResults: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '300px',
+    overflow: 'hidden', // Changed from overflowY to overflow
+  },
+  searchResultsHeader: {
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    backgroundColor: theme.palette.background.paper, // Match the Card background
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  searchResultsTitle: {
+    padding: theme.spacing(1, 2),
+    fontWeight: 'bold',
+  },
+  searchResultsList: {
+    overflowY: 'auto',
+    flex: 1,
+  },
+  noResults: {
+    marginTop: theme.spacing(2),
+    textAlign: 'center',
+  },
+  userAvatar: {
+    backgroundColor: theme.palette.primary.light,
+    width: theme.spacing(4),
+    height: theme.spacing(4),
+    marginRight: theme.spacing(1),
+  },
+  groupAvatar: {
+    backgroundColor: theme.palette.secondary.light,
+    width: theme.spacing(4),
+    height: theme.spacing(4),
+    marginRight: theme.spacing(1),
+  },
+  processingContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: theme.spacing(2),
+    gap: theme.spacing(1),
+  },
+  participantsContainer: {
+    marginTop: theme.spacing(2),
+  },
+  participantsTitle: {
+    marginBottom: theme.spacing(1),
+    fontWeight: 'bold',
+  },
+  alert: {
+    marginBottom: theme.spacing(2),
   },
 }));

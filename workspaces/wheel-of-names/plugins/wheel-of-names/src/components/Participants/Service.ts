@@ -24,10 +24,32 @@ export class EntityService {
     this.catalogApi = catalogApi;
   }
 
-  async fetchEntities(): Promise<Entity[]> {
-    const response = await this.catalogApi.getEntities({
-      filter: [{ kind: 'User' }, { kind: 'Group' }],
-    });
+  async fetchEntities(
+    searchTerm: string,
+    searchLimit: number,
+  ): Promise<Entity[]> {
+    // Fetch the entity search limit from the config API
+    // or use the default value if not set
+
+    const queryOptions: any = {
+      filter: [{ kind: 'group' }, { kind: 'user' }],
+      limit: searchLimit,
+      orderFields: { field: 'metadata.name', order: 'asc' },
+    };
+
+    if (searchTerm && searchTerm.trim() !== '') {
+      queryOptions.fullTextFilter = {
+        term: searchTerm,
+        fields: [
+          'metadata.name',
+          'kind',
+          'spec.profile.displayName',
+          'metadata.title',
+        ],
+      };
+    }
+
+    const response = await this.catalogApi.queryEntities(queryOptions);
     return response.items;
   }
 
