@@ -90,9 +90,6 @@ export const ParticipantsList = (
           {participants.map(participant => (
             <React.Fragment key={participant.id}>
               <ListItem className={getParticipantClassName(participant)}>
-                {/* <ListItemIcon>
-                  <PersonIcon className={classes.entityIcon} />
-                </ListItemIcon> */}
                 <Avatar
                   className={
                     entity.kind === 'Group'

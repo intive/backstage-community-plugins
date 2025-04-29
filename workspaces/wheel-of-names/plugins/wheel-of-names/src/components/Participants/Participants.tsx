@@ -104,6 +104,7 @@ export const Participants = ({
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const totalEntitiesRef = useRef<number>(0);
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   // Create service instance
   const entityService = useMemo(
@@ -155,18 +156,23 @@ export const Participants = ({
         );
 
         // If fewer entries are returned than requested, we've reached the end
-        if (fetchedEntities.length < searchLimit) {
+        if (fetchedEntities.items.length < searchLimit) {
           setHasMore(false);
         } else {
           setHasMore(true);
         }
 
+        // Update total items count
+        setTotalItems(fetchedEntities.totalItems);
+
         // Append entries instead of replacing them
         setEntities(prevEntities =>
-          page === 0 ? fetchedEntities : [...prevEntities, ...fetchedEntities],
+          page === 0
+            ? fetchedEntities.items
+            : [...prevEntities, ...fetchedEntities.items],
         );
 
-        totalEntitiesRef.current += fetchedEntities.length;
+        totalEntitiesRef.current += fetchedEntities.items.length;
       } catch (err) {
         setError(
           err instanceof Error ? err : new Error('Failed to load entities'),
@@ -358,9 +364,7 @@ export const Participants = ({
                 variant="subtitle2"
                 className={classes.searchResultsTitle}
               >
-                Search Results{' '}
-                {totalEntitiesRef.current > 0 &&
-                  `(${totalEntitiesRef.current})`}
+                {totalItems} results
               </Typography>
               <Divider />
             </div>
@@ -423,21 +427,13 @@ export const Participants = ({
               })}
               {/* Loading indicator for infinite scrolling */}
               {loading && (
-                <ListItem ref={loadingRef}>
+                <ListItem ref={loadingRef} button>
                   <ListItemText
                     secondary={
                       <div style={{ textAlign: 'center', padding: '8px' }}>
                         <CircularProgress size={20} />
                       </div>
                     }
-                  />
-                </ListItem>
-              )}
-              {!loading && !hasMore && entities.length > 10 && (
-                <ListItem>
-                  <ListItemText
-                    secondary="End of results reached"
-                    style={{ textAlign: 'center', fontStyle: 'italic' }}
                   />
                 </ListItem>
               )}

@@ -141,8 +141,8 @@ const mockCatalogApi = {
 
         // Return all members of the Engineering group
         if (groupName === 'engineering') {
-          const memberRefs = mockGroups[0].relations
-            .filter(rel => rel.type === 'hasMember')
+          const memberRefs = mockGroups[0]
+            .relations!.filter(rel => rel.type === 'hasMember')
             .map(rel => rel.targetRef);
 
           const memberNames = memberRefs.map(ref => ref.split('/')[1]);
@@ -182,7 +182,15 @@ const mockCatalogApi = {
 
     return {
       items: paginatedItems,
-      totalCount: allEntities.length,
+      totalItems: allEntities.length, // Changed from totalCount to totalItems
+      pageInfo: {
+        limit,
+        offset,
+        nextCursor:
+          offset + limit < allEntities.length
+            ? String(offset + limit)
+            : undefined,
+      },
     };
   },
 };

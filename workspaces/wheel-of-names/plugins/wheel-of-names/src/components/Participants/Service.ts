@@ -28,10 +28,7 @@ export class EntityService {
     searchTerm: string,
     limit: number = 10,
     offset: number = 0,
-  ): Promise<Entity[]> {
-    // Fetch the entity search limit from the config API
-    // or use the default value if not set
-
+  ): Promise<{ items: Entity[]; totalItems: number }> {
     const queryOptions: any = {
       filter: [{ kind: 'group' }, { kind: 'user' }],
       limit: limit,
@@ -52,7 +49,7 @@ export class EntityService {
     }
 
     const response = await this.catalogApi.queryEntities(queryOptions);
-    return response.items;
+    return { items: response.items, totalItems: response.totalItems };
   }
 
   async fetchGroupMembers(groupName: string): Promise<Entity[]> {
