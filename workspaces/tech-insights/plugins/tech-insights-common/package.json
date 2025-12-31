@@ -67,7 +67,7 @@
     "@types/luxon": "^3.0.0",
     "fast-json-stable-stringify": "^2.1.0",
     "luxon": "^3.0.0",
-    "qs": "^6.12.3"
+    "qs": "^6.14.1"
   },
   "devDependencies": {
     "@backstage/cli": "^0.32.1"
