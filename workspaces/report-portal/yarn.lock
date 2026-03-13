@@ -33662,9 +33662,9 @@ __metadata:
   linkType: hard
 
 "undici@npm:^7.2.3":
-  version: 7.13.0
-  resolution: "undici@npm:7.13.0"
-  checksum: 10/a51ba5c95046159e7def34d67a48605ff913e357e2aab6d51f2201f8ed09f9237f90d5bbe1beb6b3cc890940b500dc0c208527cf597de27d4a964a8c5f721f65
+  version: 7.24.1
+  resolution: "undici@npm:7.24.1"
+  checksum: 10/0af4ec2fc2ae50b1d0636895793ea2274a89a7cd445690089a1b957c4ac4a0336e48ab9ac48a4e8f5023d4b5eab56368c3f17c75d6b4c81b4281b674d1e60c9f
   languageName: node
   linkType: hard
 
